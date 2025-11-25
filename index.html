@@ -27,6 +27,7 @@
             margin: 0;
             display: flex;
             flex-direction: column;
+            user-select: none; /* Reduce selection issues during drag */
         }
 
         /* Material You Style Sliders (Custom CSS) */
@@ -39,7 +40,6 @@
         }
         input[type=range]:focus { outline: none; }
 
-        /* Webkit (Chrome/Safari/Edge) */
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
             height: 24px;
@@ -59,25 +59,6 @@
             box-shadow: 0 0 2px rgba(0,0,0,0.5);
         }
 
-        /* Firefox */
-        input[type=range]::-moz-range-track {
-            width: 100%;
-            height: 24px;
-            cursor: pointer;
-            background: var(--surface-gray);
-            border-radius: 12px;
-            border: 1px solid #555;
-        }
-        input[type=range]::-moz-range-thumb {
-            height: 24px;
-            width: 24px;
-            border: none;
-            border-radius: 50%;
-            background: var(--theme-blue);
-            cursor: pointer;
-        }
-
-        /* Number inputs styling */
         input[type=number] {
             background: var(--surface-gray);
             color: white;
@@ -91,128 +72,98 @@
             -webkit-appearance: none; margin: 0; 
         }
 
-        /* Modern Loading Animation (Liquid Dots) */
-        .loader-dots {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-        .loader-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--theme-blue);
-            animation: bounce 0.6s infinite alternate;
-        }
+        /* Loading Animation */
+        .loader-dots { display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .loader-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--theme-blue); animation: bounce 0.6s infinite alternate; }
         .loader-dot:nth-child(2) { animation-delay: 0.2s; background-color: #4c6ef5; }
         .loader-dot:nth-child(3) { animation-delay: 0.4s; background-color: #748ffc; }
-
-        @keyframes bounce {
-            to { transform: translateY(-10px); opacity: 0.7; }
-        }
+        @keyframes bounce { to { transform: translateY(-10px); opacity: 0.7; } }
 
         /* UI Containers */
-        .screen {
-            display: none;
-            height: 100%;
-            width: 100%;
-        }
+        .screen { display: none; height: 100%; width: 100%; }
         .screen.active { display: flex; }
 
-        /* Custom Scrollbar for controls */
         .controls-scroll::-webkit-scrollbar { width: 4px; }
-        .controls-scroll::-webkit-scrollbar-thumb {
-            background-color: #555;
-            border-radius: 4px;
-        }
+        .controls-scroll::-webkit-scrollbar-thumb { background-color: #555; border-radius: 4px; }
 
-        /* Button Ripple Effect */
-        .btn-ripple {
-            position: relative;
-            overflow: hidden;
-            transform: translate3d(0, 0, 0);
-        }
+        .btn-ripple { position: relative; overflow: hidden; transform: translate3d(0, 0, 0); }
         .btn-ripple:after {
-            content: "";
-            display: block;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
-            background-repeat: no-repeat;
-            background-position: 50%;
-            transform: scale(10, 10);
-            opacity: 0;
+            content: ""; display: block; position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            pointer-events: none; background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat; background-position: 50%; transform: scale(10, 10); opacity: 0;
             transition: transform .5s, opacity 1s;
         }
-        .btn-ripple:active:after {
-            transform: scale(0, 0);
-            opacity: .3;
-            transition: 0s;
-        }
+        .btn-ripple:active:after { transform: scale(0, 0); opacity: .3; transition: 0s; }
 
         /* Color Preset Circle */
         .color-preset {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s, border-color 0.2s;
-            position: relative;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; position: relative;
         }
         .color-preset:hover { transform: scale(1.1); }
         .color-preset.active { border-color: white; transform: scale(1.1); }
-        /* Add checkmark for active */
         .color-preset.active::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 12px; height: 12px;
-            background-color: #fff;
-            border-radius: 50%;
-            mix-blend-mode: difference; /* Ensure visible on any color */
-            pointer-events: none;
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 12px; height: 12px; background-color: #fff; border-radius: 50%;
+            mix-blend-mode: difference; pointer-events: none;
         }
 
-        /* Rainbow Button for Custom Color */
+        /* Rainbow Trigger */
         .rainbow-ring {
             background: conic-gradient(red, orange, yellow, green, blue, indigo, violet, red);
-            padding: 2px;
-            border-radius: 50%;
-            cursor: pointer;
+            padding: 2px; border-radius: 50%; cursor: pointer;
         }
         .rainbow-inner {
-            background: var(--bg-gray);
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--bg-gray); width: 100%; height: 100%; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0; border-color: var(--theme-blue);
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: var(--theme-blue);
+        }
+        .toggle-checkbox:checked + .toggle-label:before {
+            transform: translateX(100%);
+        }
+
+        /* Drag & Drop Styling */
+        .draggable-item { cursor: grab; user-select: none; transition: transform 0.2s, box-shadow 0.2s; }
+        .draggable-item.dragging { opacity: 0.5; cursor: grabbing; z-index: 50; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transform: scale(1.02); }
+        .drag-placeholder { border: 2px dashed #555; background: rgba(255,255,255,0.05); border-radius: 0.5rem; height: 58px; margin-bottom: 0.5rem; }
+
+        /* Custom Color Picker Modal */
+        #color-picker-modal {
+            backdrop-filter: blur(10px);
+        }
+        .picker-gradient-box {
+            width: 100%; height: 150px; position: relative;
+            background: linear-gradient(to bottom, transparent, #000), linear-gradient(to right, #fff, transparent);
+            cursor: crosshair;
+            border-radius: 8px; margin-bottom: 12px;
+        }
+        .picker-thumb {
+            width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5); position: absolute; transform: translate(-50%, -50%); pointer-events: none;
+        }
+        .hue-slider {
+            width: 100%; height: 16px; border-radius: 8px;
+            background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+            position: relative; cursor: pointer; margin-bottom: 12px;
+        }
+        .hue-thumb {
+            width: 8px; height: 100%; background: white; border: 1px solid #ccc;
+            position: absolute; top: 0; transform: translateX(-50%); pointer-events: none;
+            border-radius: 2px;
         }
 
         /* --- RESPONSIVE LAYOUT LOGIC --- */
         @media (min-width: 768px) {
-            #editor-screen {
-                flex-direction: row !important; /* Side by side */
-            }
-            #preview-container {
-                height: 100% !important;
-                width: 60% !important; /* Left side bigger */
-                border-right: 1px solid #444;
-            }
-            #controls-container {
-                height: 100% !important;
-                width: 40% !important;
-                border-top: none !important;
-                border-radius: 0 !important; /* Remove top rounded corners for desktop */
-            }
+            #editor-screen { flex-direction: row !important; }
+            #preview-container { height: 100% !important; width: 60% !important; border-right: 1px solid #444; }
+            #controls-container { height: 100% !important; width: 40% !important; border-top: none !important; border-radius: 0 !important; }
         }
     </style>
 </head>
@@ -262,9 +213,19 @@
                         </div>
                     </div>
 
-                    <!-- Image List -->
-                    <div id="image-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1 controls-scroll">
+                    <!-- Image List (Sortable) -->
+                    <div id="image-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1 controls-scroll relative">
                         <div class="text-center text-xs text-gray-500 py-2">暂无图片</div>
+                    </div>
+                    <div class="text-[10px] text-gray-500 mt-2 text-center">长按并拖动图片可调整顺序</div>
+                </div>
+
+                <!-- Outer Border Toggle -->
+                <div class="control-group bg-[#3a3a45] p-3 rounded-2xl flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">四周边框</label>
+                    <div class="relative inline-block w-10 h-6 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="toggle-outer-border" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 right-4"/>
+                        <label for="toggle-outer-border" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-600 cursor-pointer"></label>
                     </div>
                 </div>
 
@@ -280,31 +241,33 @@
                 </div>
 
                 <!-- Mode Selection -->
-                <div class="bg-[#3a3a45] p-2 rounded-2xl flex justify-between space-x-2">
-                    <button class="mode-btn flex-1 py-3 rounded-xl text-sm font-medium transition-all bg-[#29499d] text-white" data-mode="solid">纯色</button>
-                    <button class="mode-btn flex-1 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white" data-mode="self">已选图</button>
-                    <button class="mode-btn flex-1 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white" data-mode="custom">自定义</button>
+                <div>
+                    <label class="text-sm font-medium text-gray-300 block mb-2 pl-1">背景风格</label>
+                    <div class="bg-[#3a3a45] p-2 rounded-2xl flex justify-between space-x-2">
+                        <button class="mode-btn flex-1 py-3 rounded-xl text-sm font-medium transition-all bg-[#29499d] text-white" data-mode="solid">纯色</button>
+                        <button class="mode-btn flex-1 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white" data-mode="self">已选图模糊</button>
+                        <button class="mode-btn flex-1 py-3 rounded-xl text-sm font-medium transition-all text-gray-400 hover:text-white" data-mode="custom">自定义</button>
+                    </div>
                 </div>
 
                 <!-- OPTION SET 1: Solid Color (Beautified with Morandi) -->
                 <div id="opt-solid" class="control-group animate-fade-in bg-[#3a3a45] p-4 rounded-2xl">
-                    <label class="text-sm font-medium text-gray-300 block mb-3">边框颜色 (莫兰迪色系)</label>
+                    <label class="text-sm font-medium text-gray-300 block mb-3">边框颜色</label>
                     
-                    <!-- Presets (Injected by JS) -->
+                    <!-- Presets -->
                     <div id="color-presets-container" class="flex flex-wrap gap-3 mb-4 justify-start">
                         <!-- Presets will be here -->
                     </div>
 
                     <!-- Custom Input Row -->
                     <div class="flex items-center justify-between border-t border-gray-600 pt-3">
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-3 cursor-pointer" id="btn-open-picker">
                              <div class="relative w-10 h-10 rainbow-ring">
                                  <div class="rainbow-inner">
                                     <div id="current-color-preview" class="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-400"></div>
                                  </div>
-                                 <input type="color" id="color-picker" value="#ffffff" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
                              </div>
-                             <span class="text-xs text-gray-400">自定义</span>
+                             <span class="text-xs text-gray-400">点击调色</span>
                         </div>
                         
                         <div class="flex items-center bg-[#292932] rounded-lg px-3 py-1 border border-gray-600">
@@ -434,8 +397,31 @@
         </div>
     </div>
 
+    <!-- CUSTOM COLOR PICKER MODAL -->
+    <div id="color-picker-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+        <div class="bg-[#292932] p-4 rounded-2xl w-80 shadow-2xl border border-gray-600">
+            <h3 class="text-white text-lg font-bold mb-4">选择颜色</h3>
+            
+            <!-- Saturation/Value Box -->
+            <div class="picker-gradient-box" id="cp-sv-box">
+                <div class="picker-thumb" id="cp-sv-thumb" style="top: 0%; left: 0%;"></div>
+            </div>
+            
+            <!-- Hue Slider -->
+            <div class="hue-slider" id="cp-hue-slider">
+                <div class="hue-thumb" id="cp-hue-thumb" style="left: 0%;"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3 mt-4">
+                <button id="cp-cancel" class="text-gray-400 px-4 py-2 hover:text-white">取消</button>
+                <button id="cp-confirm" class="bg-[#29499d] text-white px-6 py-2 rounded-full font-bold">确定</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-32 left-1/2 transform -translate-x-1/2 bg-[#333] text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 text-sm border border-[#555] flex items-center space-x-2">
+    <div id="toast" class="fixed bottom-32 left-1/2 transform -translate-x-1/2 bg-[#333] text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-[70] text-sm border border-[#555] flex items-center space-x-2">
         <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         <span id="toast-msg">操作成功</span>
     </div>
@@ -456,33 +442,34 @@
      */
 
     // --- Constants ---
-    // 20 Morandi Colors + Black/White
+    // 20 Morandi Colors (Reordered for visual harmony) + Black/White
     const COLOR_PRESETS = [
         '#FFFFFF', // White
-        '#000000', // Black
-        '#A4B0BE', // Mist Blue
-        '#99A8B2', // Haze Blue
-        '#E0CDCF', // Dusty Pink
-        '#707C74', // Olive Green
         '#F2E6CE', // Cream
         '#E6D0B4', // Sand
-        '#8D8782', // Greyish Brown
-        '#B09B87', // Clay
-        '#8FA395', // Sage Green
-        '#C3C2D3', // Lavender Grey
+        '#E0CDCF', // Dusty Pink
         '#D9988D', // Muted Coral
-        '#778899', // Slate Grey
-        '#B3A69F', // Taupe
-        '#C6D6A8', // Matcha
-        '#5B7C99', // Denim Grey
         '#A65E5E', // Rust
+        '#B09B87', // Clay
+        '#B3A69F', // Taupe
+        '#8D8782', // Greyish Brown
         '#8C7B75', // Mocha
-        '#B4C7C2'  // Silver Sage
+        '#A4B0BE', // Mist Blue
+        '#99A8B2', // Haze Blue
+        '#5B7C99', // Denim Grey
+        '#778899', // Slate Grey
+        '#C3C2D3', // Lavender Grey
+        '#B4C7C2', // Silver Sage
+        '#8FA395', // Sage Green
+        '#C6D6A8', // Matcha
+        '#707C74', // Olive Green
+        '#000000'  // Black
     ];
 
     // --- State Management ---
     const defaultState = {
         borderWidthRatio: 5, 
+        outerBorder: true, // New: Outer Border Toggle
         mode: 'solid',
         solidColor: '#ffffff',
         blur: 20,
@@ -500,11 +487,14 @@
     // Runtime Data
     let selectedImages = []; 
     let originalImageObjects = []; 
-    let stitchedImage = null; // OPTIMIZATION: Now stores a Canvas element, not an Image object
+    let stitchedImage = null; // Canvas element
     let customBgImage = null; 
     let maxImageWidth = 0;
     
     let renderRequestId = null;
+
+    // Color Picker Runtime
+    let cpState = { hue: 0, sat: 0, val: 100 }; // H(0-360), S(0-100), V(0-100)
 
     // DOM Elements
     const views = {
@@ -518,10 +508,23 @@
         customBgFile: document.getElementById('custom-bg-input'),
         borderWidthSlider: document.getElementById('slider-border-width'),
         borderWidthNum: document.getElementById('val-border-width'),
-        colorPicker: document.getElementById('color-picker'),
+        
+        // Custom Picker Elements
+        btnOpenPicker: document.getElementById('btn-open-picker'),
+        pickerModal: document.getElementById('color-picker-modal'),
+        pickerSvBox: document.getElementById('cp-sv-box'),
+        pickerSvThumb: document.getElementById('cp-sv-thumb'),
+        pickerHueSlider: document.getElementById('cp-hue-slider'),
+        pickerHueThumb: document.getElementById('cp-hue-thumb'),
+        pickerConfirm: document.getElementById('cp-confirm'),
+        pickerCancel: document.getElementById('cp-cancel'),
+
         colorPreview: document.getElementById('current-color-preview'),
         colorHexInput: document.getElementById('color-hex-input'),
         presetsContainer: document.getElementById('color-presets-container'),
+        
+        toggleOuterBorder: document.getElementById('toggle-outer-border'),
+        
         modeBtns: document.querySelectorAll('.mode-btn'),
         blurSlider: document.getElementById('slider-blur'),
         blurNum: document.getElementById('val-blur'),
@@ -555,10 +558,11 @@
     // --- Initialization ---
 
     function init() {
-        renderColorPresets(); // New function to render JS defined colors
+        renderColorPresets(); 
         restoreUIFromState();
         setupEventListeners();
         setupDragDrop();
+        setupCustomColorPicker();
     }
 
     function renderColorPresets() {
@@ -571,7 +575,6 @@
             if(color.toLowerCase() === '#ffffff') div.style.border = '1px solid #555';
             inputs.presetsContainer.appendChild(div);
         });
-        // Re-query for listeners
         inputs.presets = document.querySelectorAll('.color-preset');
     }
 
@@ -591,6 +594,8 @@
         inputs.borderWidthSlider.value = appState.borderWidthRatio;
         inputs.borderWidthNum.value = appState.borderWidthRatio;
         updateColorUI(appState.solidColor);
+        inputs.toggleOuterBorder.checked = appState.outerBorder !== false; // default true
+        
         inputs.blurSlider.value = appState.blur;
         inputs.blurNum.value = appState.blur;
         inputs.satSlider.value = appState.saturation;
@@ -612,7 +617,6 @@
 
     function updateColorUI(hex) {
         appState.solidColor = hex;
-        inputs.colorPicker.value = hex;
         inputs.colorPreview.style.backgroundColor = hex;
         inputs.colorHexInput.value = hex.replace('#', '').toUpperCase();
         
@@ -626,6 +630,126 @@
                 if(p.dataset.color.toLowerCase() === '#ffffff') p.style.border = '1px solid #555';
             }
         });
+    }
+
+    // --- Custom Color Picker Logic ---
+    function setupCustomColorPicker() {
+        let draggingSv = false;
+        let draggingHue = false;
+
+        function hsvToHex(h, s, v) {
+            s /= 100; v /= 100;
+            let c = v * s;
+            let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            let m = v - c;
+            let r=0, g=0, b=0;
+            if(0<=h && h<60){r=c;g=x;b=0;}
+            else if(60<=h && h<120){r=x;g=c;b=0;}
+            else if(120<=h && h<180){r=0;g=c;b=x;}
+            else if(180<=h && h<240){r=0;g=x;b=c;}
+            else if(240<=h && h<300){r=x;g=0;b=c;}
+            else{r=c;g=0;b=x;}
+            r = Math.round((r + m) * 255).toString(16).padStart(2,'0');
+            g = Math.round((g + m) * 255).toString(16).padStart(2,'0');
+            b = Math.round((b + m) * 255).toString(16).padStart(2,'0');
+            return `#${r}${g}${b}`;
+        }
+
+        function hexToHsv(hex) {
+            hex = hex.replace('#', '');
+            let r = parseInt(hex.substring(0,2), 16) / 255;
+            let g = parseInt(hex.substring(2,4), 16) / 255;
+            let b = parseInt(hex.substring(4,6), 16) / 255;
+            let max = Math.max(r,g,b), min = Math.min(r,g,b);
+            let h, s, v = max;
+            let d = max - min;
+            s = max === 0 ? 0 : d / max;
+            if(max === min) h = 0;
+            else {
+                switch(max){
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: h*360, s: s*100, v: v*100 };
+        }
+
+        function updatePickerVisuals() {
+            // Update SV Box Background based on Hue
+            inputs.pickerSvBox.style.background = `linear-gradient(to bottom, transparent, #000), linear-gradient(to right, #fff, hsl(${cpState.hue}, 100%, 50%))`;
+            
+            // Move Thumbs
+            inputs.pickerHueThumb.style.left = `${(cpState.hue / 360) * 100}%`;
+            inputs.pickerSvThumb.style.left = `${cpState.sat}%`;
+            inputs.pickerSvThumb.style.top = `${100 - cpState.val}%`;
+            
+            // Check brightness for thumb border
+            inputs.pickerSvThumb.style.borderColor = cpState.val < 50 ? 'white' : 'black';
+        }
+
+        function handleSvInput(e) {
+            const rect = inputs.pickerSvBox.getBoundingClientRect();
+            let x = (e.clientX || e.touches[0].clientX) - rect.left;
+            let y = (e.clientY || e.touches[0].clientY) - rect.top;
+            x = Math.max(0, Math.min(x, rect.width));
+            y = Math.max(0, Math.min(y, rect.height));
+            
+            cpState.sat = (x / rect.width) * 100;
+            cpState.val = 100 - ((y / rect.height) * 100);
+            updatePickerVisuals();
+        }
+
+        function handleHueInput(e) {
+            const rect = inputs.pickerHueSlider.getBoundingClientRect();
+            let x = (e.clientX || e.touches[0].clientX) - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            
+            cpState.hue = (x / rect.width) * 360;
+            updatePickerVisuals();
+        }
+
+        inputs.btnOpenPicker.addEventListener('click', () => {
+            cpState = hexToHsv(appState.solidColor);
+            updatePickerVisuals();
+            inputs.pickerModal.classList.remove('hidden');
+        });
+
+        inputs.pickerConfirm.addEventListener('click', () => {
+            const hex = hsvToHex(cpState.hue, cpState.sat, cpState.val);
+            updateColorUI(hex);
+            requestRender();
+            inputs.pickerModal.classList.add('hidden');
+        });
+
+        inputs.pickerCancel.addEventListener('click', () => {
+            inputs.pickerModal.classList.add('hidden');
+        });
+
+        // Event Listeners for SV Box
+        const startSv = (e) => { draggingSv = true; handleSvInput(e); };
+        const moveSv = (e) => { if(draggingSv) { e.preventDefault(); handleSvInput(e); }};
+        const endSv = () => { draggingSv = false; };
+        
+        inputs.pickerSvBox.addEventListener('mousedown', startSv);
+        inputs.pickerSvBox.addEventListener('touchstart', startSv);
+        window.addEventListener('mousemove', moveSv);
+        window.addEventListener('touchmove', moveSv, {passive: false});
+        window.addEventListener('mouseup', endSv);
+        window.addEventListener('touchend', endSv);
+
+        // Event Listeners for Hue Slider
+        const startHue = (e) => { draggingHue = true; handleHueInput(e); };
+        const moveHue = (e) => { if(draggingHue) { e.preventDefault(); handleHueInput(e); }};
+        const endHue = () => { draggingHue = false; };
+
+        inputs.pickerHueSlider.addEventListener('mousedown', startHue);
+        inputs.pickerHueSlider.addEventListener('touchstart', startHue);
+        window.addEventListener('mousemove', moveHue);
+        window.addEventListener('touchmove', moveHue, {passive: false});
+        window.addEventListener('mouseup', endHue);
+        window.addEventListener('touchend', endHue);
     }
 
     // --- Event Listeners ---
@@ -647,16 +771,17 @@
         });
         inputs.customBgFile.addEventListener('change', handleCustomBgSelection);
 
+        inputs.toggleOuterBorder.addEventListener('change', (e) => {
+            appState.outerBorder = e.target.checked;
+            requestRender();
+            saveSettings();
+        });
+
         bindSync(inputs.borderWidthSlider, inputs.borderWidthNum, (val) => {
             appState.borderWidthRatio = parseFloat(val);
             requestRender();
         });
 
-        inputs.colorPicker.addEventListener('input', (e) => {
-            updateColorUI(e.target.value);
-            requestRender();
-        });
-        
         inputs.presets.forEach(p => {
             p.addEventListener('click', () => {
                 updateColorUI(p.dataset.color);
@@ -772,7 +897,7 @@
         saveSettings();
     }
 
-    // --- Logic: Image List UI & Reordering ---
+    // --- Logic: Drag & Drop Image List ---
 
     function renderImageList() {
         const container = inputs.imageListContainer;
@@ -785,63 +910,139 @@
 
         originalImageObjects.forEach((img, index) => {
             const div = document.createElement('div');
-            div.className = 'flex items-center bg-[#292932] p-2 rounded-lg border border-[#444] animate-fade-in group';
+            div.className = 'draggable-item flex items-center bg-[#292932] p-2 rounded-lg border border-[#444] relative z-10';
+            div.dataset.index = index;
             
+            // Thumbnail
             const thumbCanvas = document.createElement('canvas');
-            thumbCanvas.width = 40;
-            thumbCanvas.height = 40;
+            thumbCanvas.width = 40; thumbCanvas.height = 40;
             const tCtx = thumbCanvas.getContext('2d');
             const size = Math.min(img.width, img.height);
             tCtx.drawImage(img, (img.width-size)/2, (img.height-size)/2, size, size, 0, 0, 40, 40);
-            thumbCanvas.className = 'rounded w-10 h-10 bg-black mr-3 flex-shrink-0';
+            thumbCanvas.className = 'rounded w-10 h-10 bg-black mr-3 flex-shrink-0 pointer-events-none';
             
+            // Info
             const infoDiv = document.createElement('div');
-            infoDiv.className = 'flex-1 min-w-0';
+            infoDiv.className = 'flex-1 min-w-0 pointer-events-none';
             infoDiv.innerHTML = `<div class="text-xs text-gray-300 truncate">图 ${index + 1}</div><div class="text-[10px] text-gray-500">${img.width}x${img.height}</div>`;
 
-            const controlsDiv = document.createElement('div');
-            controlsDiv.className = 'flex space-x-1';
-
-            const btnUp = document.createElement('button');
-            btnUp.className = `p-1 rounded text-gray-400 hover:text-white hover:bg-[#555] ${index === 0 ? 'opacity-30 cursor-not-allowed' : ''}`;
-            btnUp.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>`;
-            if (index > 0) {
-                btnUp.onclick = () => moveImage(index, -1);
-            }
-
-            const btnDown = document.createElement('button');
-            btnDown.className = `p-1 rounded text-gray-400 hover:text-white hover:bg-[#555] ${index === originalImageObjects.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}`;
-            btnDown.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-            if (index < originalImageObjects.length - 1) {
-                btnDown.onclick = () => moveImage(index, 1);
-            }
-
+            // Delete Button (Separate from drag area)
             const btnDel = document.createElement('button');
-            btnDel.className = 'p-1 rounded text-red-400 hover:bg-red-900/30 ml-1';
-            btnDel.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-            btnDel.onclick = () => removeImage(index);
-
-            controlsDiv.appendChild(btnUp);
-            controlsDiv.appendChild(btnDown);
-            controlsDiv.appendChild(btnDel);
+            btnDel.className = 'p-2 rounded text-red-400 hover:bg-red-900/30 ml-2 cursor-pointer z-20';
+            btnDel.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            btnDel.onclick = (e) => {
+                e.stopPropagation(); // Prevent drag start
+                removeImage(index);
+            };
 
             div.appendChild(thumbCanvas);
             div.appendChild(infoDiv);
-            div.appendChild(controlsDiv);
+            div.appendChild(btnDel);
             container.appendChild(div);
+
+            // Bind Drag Events
+            addDragListeners(div);
         });
     }
 
-    // Optimization: Removed setTimeout and loader for instant swap
-    function moveImage(index, direction) {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= originalImageObjects.length) return;
+    // --- Simple Drag and Drop Implementation ---
+    let dragSrcEl = null;
+    let dragPlaceholder = null;
+
+    function addDragListeners(el) {
+        // Touch Support
+        el.addEventListener('touchstart', handleTouchStart, {passive: false});
+        el.addEventListener('touchmove', handleTouchMove, {passive: false});
+        el.addEventListener('touchend', handleTouchEnd);
         
-        // Swap
-        const temp = originalImageObjects[index];
-        originalImageObjects[index] = originalImageObjects[newIndex];
-        originalImageObjects[newIndex] = temp;
+        // Mouse Support
+        el.setAttribute('draggable', true);
+        el.addEventListener('dragstart', handleDragStart);
+        el.addEventListener('dragover', handleDragOver);
+        el.addEventListener('drop', handleDrop);
+        el.addEventListener('dragend', handleDragEnd);
+    }
+
+    // Desktop Drag
+    function handleDragStart(e) {
+        dragSrcEl = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        this.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) e.preventDefault();
+        return false;
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        if (dragSrcEl !== this) {
+            const oldIdx = parseInt(dragSrcEl.dataset.index);
+            const newIdx = parseInt(this.dataset.index);
+            moveImage(oldIdx, newIdx);
+        }
+        return false;
+    }
+
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+    }
+
+    // Mobile Touch Drag (Simplified)
+    let touchStartY = 0;
+    let touchCurrentEl = null;
+
+    function handleTouchStart(e) {
+        // Only trigger if not clicking delete
+        if(e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
         
+        touchStartY = e.touches[0].clientY;
+        touchCurrentEl = this;
+        this.classList.add('dragging');
+        
+        // Disable scroll while dragging
+        document.body.style.overflow = 'hidden';
+    }
+
+    function handleTouchMove(e) {
+        if(!touchCurrentEl) return;
+        e.preventDefault();
+        const touchLocation = e.touches[0];
+        
+        // Find element below finger
+        const elementBelow = document.elementFromPoint(touchLocation.clientX, touchLocation.clientY);
+        const droppableBelow = elementBelow?.closest('.draggable-item');
+
+        if (droppableBelow && droppableBelow !== touchCurrentEl) {
+             // Visual feedback could go here, but for simplicity we just swap on end or rely on drop logic
+             // For true sortable list on mobile, we swap data immediately or visual placeholders. 
+             // Here we stick to simple logic: detect where we end.
+        }
+    }
+
+    function handleTouchEnd(e) {
+        if(!touchCurrentEl) return;
+        
+        const touchLocation = e.changedTouches[0];
+        const elementBelow = document.elementFromPoint(touchLocation.clientX, touchLocation.clientY);
+        const droppableBelow = elementBelow?.closest('.draggable-item');
+
+        if (droppableBelow && droppableBelow !== touchCurrentEl) {
+            const oldIdx = parseInt(touchCurrentEl.dataset.index);
+            const newIdx = parseInt(droppableBelow.dataset.index);
+            moveImage(oldIdx, newIdx);
+        }
+
+        touchCurrentEl.classList.remove('dragging');
+        touchCurrentEl = null;
+        document.body.style.overflow = '';
+    }
+
+    function moveImage(fromIndex, toIndex) {
+        const item = originalImageObjects.splice(fromIndex, 1)[0];
+        originalImageObjects.splice(toIndex, 0, item);
         refreshAfterImageUpdate();
     }
 
@@ -855,7 +1056,6 @@
     }
 
     function refreshAfterImageUpdate() {
-        // Instant update without loading screen for responsiveness
         recalculateDimensions();
         inputs.imgCount.innerText = originalImageObjects.length;
         generateStitchedBase(); 
@@ -870,12 +1070,25 @@
         
         const borderWidth = maxImageWidth * (appState.borderWidthRatio / 100);
         const totalContentHeight = selectedImages.reduce((sum, item) => sum + item.height, 0);
-        const totalBordersHeight = borderWidth * (selectedImages.length + 1);
         
-        const logicalWidth = maxImageWidth + (borderWidth * 2);
-        const logicalHeight = totalContentHeight + totalBordersHeight;
+        // LOGIC UPDATE: Outer Border Toggle
+        let totalBordersHeight;
+        let finalWidth;
         
-        return { w: logicalWidth, h: logicalHeight };
+        if (appState.outerBorder) {
+            // Padding around everything + gaps
+            totalBordersHeight = borderWidth * (selectedImages.length + 1);
+            finalWidth = maxImageWidth + (borderWidth * 2);
+        } else {
+            // Only gaps between images
+            totalBordersHeight = borderWidth * (selectedImages.length - 1);
+            if (totalBordersHeight < 0) totalBordersHeight = 0; // if 1 image
+            finalWidth = maxImageWidth;
+        }
+        
+        const finalHeight = totalContentHeight + totalBordersHeight;
+        
+        return { w: finalWidth, h: finalHeight };
     }
 
     function updateResolutionDisplay() {
@@ -984,20 +1197,18 @@
         if (selectedImages.length === 0) return;
         const totalHeight = selectedImages.reduce((sum, item) => sum + item.height, 0);
         
-        // OPTIMIZATION: Use Canvas directly, do NOT convert to DataURL/Image
         const canvas = document.createElement('canvas');
         canvas.width = maxImageWidth;
         canvas.height = totalHeight;
         const ctx = canvas.getContext('2d');
         
-        // Fast draw
         let currentY = 0;
         selectedImages.forEach(item => {
             ctx.drawImage(item.img, 0, currentY, maxImageWidth, item.height);
             currentY += item.height;
         });
         
-        stitchedImage = canvas; // Save Canvas Element
+        stitchedImage = canvas;
     }
 
     // --- Core Logic: Rendering ---
@@ -1030,18 +1241,24 @@
         ctx.save();
         ctx.scale(renderScale, renderScale);
 
+        // 1. Draw Background
+        // Logic Update: If outerBorder is FALSE, background is only visible in gaps.
+        // However, canvas size matches content, so background is simply drawn behind.
+        
         if (appState.mode === 'solid') {
             ctx.fillStyle = appState.solidColor;
             ctx.fillRect(0, 0, finalWidth, finalHeight);
         } else {
             let bgSource = (appState.mode === 'custom' && customBgImage) ? customBgImage : stitchedImage;
             
-            // bgSource can be Image or Canvas, both work with drawImage
             if (bgSource) {
                 ctx.save();
                 ctx.fillStyle = '#000';
                 ctx.fillRect(0,0, finalWidth, finalHeight);
 
+                // IMPORTANT: When outer border is gone, the canvas aspect ratio changes.
+                // The background logic should adapt to fill the new canvas size.
+                
                 const bgRatio = bgSource.width / bgSource.height;
                 const canvasRatio = finalWidth / finalHeight;
                 
@@ -1096,9 +1313,20 @@
             }
         }
 
-        let currentY = borderWidth;
+        // 2. Draw Images
+        let currentY;
+        let xPos;
+        
+        if (appState.outerBorder) {
+            currentY = borderWidth;
+            xPos = borderWidth;
+        } else {
+            currentY = 0;
+            xPos = 0;
+        }
+
         selectedImages.forEach(imgData => {
-            ctx.drawImage(imgData.img, borderWidth, currentY, maxImageWidth, imgData.height);
+            ctx.drawImage(imgData.img, xPos, currentY, maxImageWidth, imgData.height);
             currentY += (imgData.height + borderWidth);
         });
 
@@ -1137,8 +1365,6 @@
             inputs.btnHome.classList.remove('hidden');
         }, 300); 
     }
-
-    // --- Utilities ---
 
     function toggleLoading(show) {
         if (show) inputs.loading.classList.remove('hidden');
@@ -1185,7 +1411,6 @@
         });
     }
 
-    // Run
     init();
 
 </script>
