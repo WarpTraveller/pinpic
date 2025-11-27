@@ -468,6 +468,11 @@
      */
 
     // --- Constants ---
+    /**
+     * 颜色预设数组。
+     * 在 UI 中显示为色样，便于用户快速选择常用底色。
+     * @constant {string[]}
+     */
     // 20 Morandi Colors (Reordered for visual harmony) + Black/White
     const COLOR_PRESETS = [
         '#FFFFFF', // White
@@ -493,6 +498,11 @@
     ];
 
     // --- State Management ---
+    /**
+     * 应用默认状态。
+     * 该对象在首次运行时作为默认设置，后续会被保存在 localStorage（通过 saveSettings）。
+     * @type {Object}
+     */
     const defaultState = {
         borderWidthRatio: 5, 
         outerBorder: true, // New: Outer Border Toggle
@@ -582,8 +592,14 @@
         ,insertIndicator: document.getElementById('insert-indicator')
     };
 
-    // --- Initialization ---
-
+    // --- 初始化 ---
+    /**
+     * 初始化应用。
+     * - 渲染颜色预设
+     * - 恢复 UI 状态
+     * - 绑定事件监听器
+     * - 初始化拖放与调色盘
+     */
     function init() {
         renderColorPresets(); 
         restoreUIFromState();
@@ -592,6 +608,9 @@
         setupCustomColorPicker();
     }
 
+    /**
+     * 渲染颜色预设面板，并缓存预设元素集合到 `inputs.presets`。
+     */
     function renderColorPresets() {
         inputs.presetsContainer.innerHTML = '';
         COLOR_PRESETS.forEach(color => {
@@ -605,10 +624,16 @@
         inputs.presets = document.querySelectorAll('.color-preset');
     }
 
+    /**
+     * 将当前 `appState` 序列化并保存到 localStorage。
+     */
     function saveSettings() {
         localStorage.setItem('pinpic_settings', JSON.stringify(appState));
     }
 
+    /**
+     * 请求下一帧更新预览（防抖）。
+     */
     function requestRender() {
         if (renderRequestId) cancelAnimationFrame(renderRequestId);
         renderRequestId = requestAnimationFrame(() => {
@@ -617,6 +642,9 @@
         });
     }
 
+    /**
+     * 从 `appState` 恢复 UI 控件的值（在初始化时调用）。
+     */
     function restoreUIFromState() {
         inputs.borderWidthSlider.value = appState.borderWidthRatio;
         inputs.borderWidthNum.value = appState.borderWidthRatio;
@@ -642,6 +670,10 @@
         updateModeUI(appState.mode);
     }
 
+    /**
+     * 应用十六进制颜色到界面并更新状态。
+     * @param {string} hex - 形如 '#RRGGBB' 的颜色字符串
+     */
     function updateColorUI(hex) {
         if (!hex) return;
         // Normalize hex to form #RRGGBB
@@ -669,11 +701,22 @@
         requestRender();
     }
 
-    // --- Custom Color Picker Logic ---
+    // --- 自定义调色盘逻辑 ---
+    /**
+     * 初始化并绑定自定义调色盘的交互逻辑。
+     * 提供 HSV/HEX 转换、视觉更新和触摸/鼠标事件处理。
+     */
     function setupCustomColorPicker() {
         let draggingSv = false;
         let draggingHue = false;
 
+        /**
+         * 将 HSV 值转换为 HEX 字符串。
+         * @param {number} h 色相（0-360）
+         * @param {number} s 饱和度（0-100）
+         * @param {number} v 明度（0-100）
+         * @returns {string} 返回形如 '#RRGGBB' 的字符串
+         */
         function hsvToHex(h, s, v) {
             s /= 100; v /= 100;
             let c = v * s;
@@ -692,6 +735,12 @@
             return `#${r}${g}${b}`;
         }
 
+        /**
+         * 将 HEX 字符串转换为 HSV 对象（字段：hue, sat, val）。
+         * 支持短写 '#f00'，对无效输入返回白色默认值。
+         * @param {string} hex - '#RRGGBB' 或 'RRGGBB' 或短写形式
+         * @returns {{hue:number, sat:number, val:number}}
+         */
         function hexToHsv(hex) {
             hex = (hex || '').replace('#', '').trim();
             // support 3-digit hex like 'f00'
@@ -699,8 +748,8 @@
                 hex = hex.split('').map(ch => ch + ch).join('');
             }
             if (hex.length !== 6) {
-                // fallback to red
-                hex = 'FF0000';
+                // invalid input: return a safe default (white)
+                return { hue: 0, sat: 0, val: 100 };
             }
             let r = parseInt(hex.substring(0,2), 16) / 255 || 0;
             let g = parseInt(hex.substring(2,4), 16) / 255 || 0;
@@ -718,10 +767,16 @@
                 }
                 h /= 6;
             }
-            return { h: Number.isFinite(h) ? h*360 : 0, s: Number.isFinite(s) ? s*100 : 0, v: Number.isFinite(v) ? v*100 : 100 };
+            return { hue: Number.isFinite(h) ? h*360 : 0, sat: Number.isFinite(s) ? s*100 : 0, val: Number.isFinite(v) ? v*100 : 100 };
         }
 
         // Parse rgb(...) or rgba(...) string to #RRGGBB
+        /**
+         * 将 CSS 的 rgb(...) 或 rgba(...) 字符串解析为 '#RRGGBB'。
+         * 若无法解析返回 null。
+         * @param {string} rgbStr
+         * @returns {string|null}
+         */
         function rgbStringToHex(rgbStr) {
             if (!rgbStr || typeof rgbStr !== 'string') return null;
             const m = rgbStr.match(/rgba?\s*\(([^)]+)\)/i);
@@ -734,12 +789,16 @@
             return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('').toUpperCase();
         }
 
+        /**
+         * 更新调色盘视觉元素（SV 盒背景、thumb 位置与样式）。
+         */
         function updatePickerVisuals() {
             // Update SV Box Background based on Hue
             // clamp cpState
-            cpState.hue = Math.max(0, Math.min(360, Number(cpState.hue) || 0));
-            cpState.sat = Math.max(0, Math.min(100, Number(cpState.sat) || 100));
-            cpState.val = Math.max(0, Math.min(100, Number(cpState.val) || 100));
+            // Use explicit finite-number checks so that 0 is preserved (0 is falsy)
+            cpState.hue = Number.isFinite(Number(cpState.hue)) ? Math.max(0, Math.min(360, Number(cpState.hue))) : 0;
+            cpState.sat = Number.isFinite(Number(cpState.sat)) ? Math.max(0, Math.min(100, Number(cpState.sat))) : 100;
+            cpState.val = Number.isFinite(Number(cpState.val)) ? Math.max(0, Math.min(100, Number(cpState.val))) : 100;
 
             inputs.pickerSvBox.style.background = `linear-gradient(to bottom, transparent, #000), linear-gradient(to right, #fff, hsl(${cpState.hue}, 100%, 50%))`;
             // Fallback: set colored outline so user sees hue even if gradient fails
@@ -755,6 +814,10 @@
         }
 
         // Read current picker UI state (thumb positions) back into cpState
+        /**
+         * 根据 UI 中 thumb 的样式位置读取当前的选择状态，写回 `cpState`。
+         * 用于在确认时保证状态与视觉一致（补偿丢失事件）。
+         */
         function readPickerStateFromUI() {
             try {
                 const hueLeft = inputs.pickerHueThumb.style.left || getComputedStyle(inputs.pickerHueThumb).left || '0%';
@@ -784,6 +847,10 @@
             }
         }
 
+        /**
+         * 处理 SV 区域的指针/触摸输入，计算并更新 cpState 的 sat/val。
+         * @param {Event} e
+         */
         function handleSvInput(e) {
             const rect = inputs.pickerSvBox.getBoundingClientRect();
             let x = (e.clientX || e.touches[0].clientX) - rect.left;
@@ -796,6 +863,10 @@
             updatePickerVisuals();
         }
 
+        /**
+         * 处理色相滑块的指针/触摸输入，计算并更新 cpState.hue。
+         * @param {Event} e
+         */
         function handleHueInput(e) {
             const rect = inputs.pickerHueSlider.getBoundingClientRect();
             let x = (e.clientX || e.touches[0].clientX) - rect.left;
@@ -966,6 +1037,13 @@
             window.location.reload(); 
         });
 
+        // Helper: keep a slider and numeric input in sync and persist changes
+        /**
+         * 将滑块与数字输入进行双向绑定，并在值变更时调用回调同时保存设置。
+         * @param {HTMLElement} slider - 滑块元素
+         * @param {HTMLElement} num - 数字输入元素
+         * @param {function} callback - 值改变后的回调
+         */
         function bindSync(slider, num, callback) {
             slider.addEventListener('input', () => {
                 num.value = slider.value;
@@ -994,8 +1072,48 @@
             // ensure indicator exists
             // no-op, placeholder to ensure drag events fire on container
         });
+
+        // Container-level dragover/drop to allow dropping in gaps (including below the last item)
+        inputs.imageListContainer.addEventListener('dragover', (e) => {
+            if (e.preventDefault) e.preventDefault();
+            const container = inputs.imageListContainer;
+            const cursorYContent = (e.clientY - container.getBoundingClientRect().top) + container.scrollTop;
+            const insertIndex = computeInsertIndexFromY(container, cursorYContent);
+            const items = Array.from(container.querySelectorAll('.draggable-item'));
+            let insertTop = 0;
+            if (insertIndex === 0) {
+                insertTop = items[0] ? items[0].offsetTop : 0;
+            } else if (insertIndex >= items.length) {
+                const last = items[items.length - 1];
+                insertTop = last ? (last.offsetTop + last.offsetHeight) : 0;
+            } else {
+                const prev = items[insertIndex - 1];
+                insertTop = prev.offsetTop + prev.offsetHeight;
+            }
+            showInsertIndicatorAt(insertTop);
+            return false;
+        });
+
+        inputs.imageListContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            hideInsertIndicator();
+            cleanupPlaceholders();
+            if (!dragSrcEl) return false;
+            const oldIdx = parseInt(dragSrcEl.dataset.index);
+            const container = inputs.imageListContainer;
+            const cursorYContent = (e.clientY - container.getBoundingClientRect().top) + container.scrollTop;
+            let insertIndex = computeInsertIndexFromY(container, cursorYContent);
+            if (insertIndex > oldIdx) insertIndex--;
+            if (insertIndex !== oldIdx) moveImage(oldIdx, insertIndex);
+            return false;
+        });
     }
 
+    // Update UI for selected background mode (solid/custom)
+    /**
+     * 根据当前背景模式更新界面显示（纯色 vs 自定义背景）。
+     * @param {string} mode - 'solid' | 'custom'
+     */
     function updateModeUI(mode) {
         inputs.modeBtns.forEach(btn => {
             if (btn.dataset.mode === mode) {
@@ -1025,6 +1143,10 @@
 
     // --- Logic: Drag & Drop Image List ---
 
+    /**
+     * 渲染图片列表（可拖拽排序）。
+     * 负责创建每个条目的缩略图、信息与删除按钮，绑定拖放与触摸事件。
+     */
     function renderImageList() {
         const container = inputs.imageListContainer;
         // Clear list but preserve or recreate the insert indicator element
@@ -1104,6 +1226,10 @@
     let dragSrcEl = null;
     let dragPlaceholder = null;
 
+    /**
+     * 为可拖动列表项绑定拖拽与触摸事件（兼容移动端）。
+     * @param {HTMLElement} el - 列表项元素
+     */
     function addDragListeners(el) {
         // Touch Support
         el.addEventListener('touchstart', handleTouchStart, {passive: false});
@@ -1119,6 +1245,11 @@
     }
 
     // Desktop Drag
+    /**
+     * 处理拖拽开始事件，设置拖动视觉样式并移除旧的占位符。
+     * 此处也尝试设置透明的拖拽图片以避免浏览器默认的灰色拖影。
+     * @param {DragEvent} e
+     */
     function handleDragStart(e) {
         dragSrcEl = this;
         e.dataTransfer.effectAllowed = 'move';
@@ -1136,7 +1267,10 @@
         cleanupPlaceholders();
     }
 
-    // Helper to show/hide the insert indicator
+    /**
+     * 在列表中显示白色插入指示线，位于指定的相对 top 像素位置。
+     * @param {number} topPx
+     */
     function showInsertIndicatorAt(topPx) {
         if (!inputs.insertIndicator) return;
         inputs.insertIndicator.style.top = `${topPx}px`;
@@ -1148,6 +1282,9 @@
     }
 
     // Remove stray placeholder or ghost elements that could appear during drag
+    /**
+     * 清理列表中遗留的占位或幽灵节点，防止出现灰色条或残留元素。
+     */
     function cleanupPlaceholders() {
         const container = inputs.imageListContainer;
         if (!container) return;
@@ -1166,15 +1303,36 @@
         });
     }
 
+    /**
+     * 根据容器内 Y 坐标计算插入索引，保证在相邻两项之间只显示单一插入位置。
+     * @param {HTMLElement} container
+     * @param {number} cursorYContent - 相对于容器内容顶部的 Y（包含 scrollTop）
+     * @returns {number} 插入索引（0..n）
+     */
+    function computeInsertIndexFromY(container, cursorYContent) {
+        const items = Array.from(container.querySelectorAll('.draggable-item'));
+        for (let i = 0; i < items.length; i++) {
+            const it = items[i];
+            const mid = it.offsetTop + it.offsetHeight / 2;
+            if (cursorYContent < mid) return i;
+        }
+        return items.length;
+    }
+
     function handleDragOver(e) {
         if (e.preventDefault) e.preventDefault();
-        // Use offsetTop/offsetHeight to compute position relative to container content (handles scrolling)
         const container = inputs.imageListContainer;
-        const target = this; // current .draggable-item
-        const targetMid = target.offsetTop + target.offsetHeight / 2;
-        // compute cursor Y relative to container content top
+        // 计算光标在容器内容中的 Y（包含滚动）
         const cursorYContent = (e.clientY - container.getBoundingClientRect().top) + container.scrollTop;
-        const insertTop = (cursorYContent < targetMid) ? target.offsetTop : (target.offsetTop + target.offsetHeight);
+        const insertIndex = computeInsertIndexFromY(container, cursorYContent);
+        const items = Array.from(container.querySelectorAll('.draggable-item'));
+        let insertTop = 0;
+        if (insertIndex === 0) {
+            insertTop = items[0] ? items[0].offsetTop : 0;
+        } else {
+            const prev = items[insertIndex - 1];
+            insertTop = prev.offsetTop + prev.offsetHeight;
+        }
         showInsertIndicatorAt(insertTop);
         return false;
     }
@@ -1183,18 +1341,15 @@
         e.stopPropagation();
         hideInsertIndicator();
         cleanupPlaceholders();
-        if (dragSrcEl !== this) {
-            const oldIdx = parseInt(dragSrcEl.dataset.index);
-            const targetIdx = parseInt(this.dataset.index);
-            const container = inputs.imageListContainer;
-            const targetEl = this;
-            const targetMid = targetEl.offsetTop + targetEl.offsetHeight / 2;
-            const cursorYContent = (e.clientY - container.getBoundingClientRect().top) + container.scrollTop;
-            let insertIndex = (cursorYContent < targetMid) ? targetIdx : targetIdx + 1;
-            // Adjust insert index when removing earlier element
-            if (insertIndex > oldIdx) insertIndex--;
-            moveImage(oldIdx, insertIndex);
-        }
+        if (!dragSrcEl) return false;
+        const oldIdx = parseInt(dragSrcEl.dataset.index);
+        const container = inputs.imageListContainer;
+        const cursorYContent = (e.clientY - container.getBoundingClientRect().top) + container.scrollTop;
+        let insertIndex = computeInsertIndexFromY(container, cursorYContent);
+        // Adjust insert index when removing earlier element
+        if (insertIndex > oldIdx) insertIndex--;
+        // Only move if different
+        if (insertIndex !== oldIdx) moveImage(oldIdx, insertIndex);
         return false;
     }
 
@@ -1224,39 +1379,33 @@
         if(!touchCurrentEl) return;
         e.preventDefault();
         const touchLocation = e.touches[0];
-        
-        // Find element below finger
-        const elementBelow = document.elementFromPoint(touchLocation.clientX, touchLocation.clientY);
-        const droppableBelow = elementBelow?.closest('.draggable-item');
-
-           if (droppableBelow) {
-               const container = inputs.imageListContainer;
-               const targetMid = droppableBelow.offsetTop + droppableBelow.offsetHeight / 2;
-               const cursorYContent = (touchLocation.clientY - container.getBoundingClientRect().top) + container.scrollTop;
-               const insertTop = (cursorYContent < targetMid) ? droppableBelow.offsetTop : (droppableBelow.offsetTop + droppableBelow.offsetHeight);
-               showInsertIndicatorAt(insertTop);
-           } else {
-               // If not over any item, show at the bottom of list
-               showInsertIndicatorAt(inputs.imageListContainer.scrollHeight - 4);
-           }
+        const container = inputs.imageListContainer;
+        const cursorYContent = (touchLocation.clientY - container.getBoundingClientRect().top) + container.scrollTop;
+        const insertIndex = computeInsertIndexFromY(container, cursorYContent);
+        const items = Array.from(container.querySelectorAll('.draggable-item'));
+        let insertTop = 0;
+        if (insertIndex === 0) {
+            insertTop = items[0] ? items[0].offsetTop : 0;
+        } else if (insertIndex >= items.length) {
+            // bottom of list
+            const last = items[items.length - 1];
+            insertTop = last ? (last.offsetTop + last.offsetHeight) : 0;
+        } else {
+            const prev = items[insertIndex - 1];
+            insertTop = prev.offsetTop + prev.offsetHeight;
+        }
+        showInsertIndicatorAt(insertTop);
     }
 
     function handleTouchEnd(e) {
         if(!touchCurrentEl) return;
-        
         const touchLocation = e.changedTouches[0];
-        const elementBelow = document.elementFromPoint(touchLocation.clientX, touchLocation.clientY);
-        const droppableBelow = elementBelow?.closest('.draggable-item');
-
-        if (droppableBelow && droppableBelow !== touchCurrentEl) {
-            const oldIdx = parseInt(touchCurrentEl.dataset.index);
-            const targetIdx = parseInt(droppableBelow.dataset.index);
-            const targetRect = droppableBelow.getBoundingClientRect();
-            const mid = (targetRect.top + targetRect.bottom) / 2;
-            let insertIndex = (touchLocation.clientY < mid) ? targetIdx : targetIdx + 1;
-            if (insertIndex > oldIdx) insertIndex--;
-            moveImage(oldIdx, insertIndex);
-        }
+        const container = inputs.imageListContainer;
+        const cursorYContent = (touchLocation.clientY - container.getBoundingClientRect().top) + container.scrollTop;
+        const oldIdx = parseInt(touchCurrentEl.dataset.index);
+        let insertIndex = computeInsertIndexFromY(container, cursorYContent);
+        if (insertIndex > oldIdx) insertIndex--;
+        if (insertIndex !== oldIdx) moveImage(oldIdx, insertIndex);
 
         hideInsertIndicator();
         cleanupPlaceholders();
@@ -1266,12 +1415,21 @@
         document.body.style.overflow = '';
     }
 
+    /**
+     * 移动图片在数组中的顺序并刷新界面。
+     * @param {number} fromIndex
+     * @param {number} toIndex
+     */
     function moveImage(fromIndex, toIndex) {
         const item = originalImageObjects.splice(fromIndex, 1)[0];
         originalImageObjects.splice(toIndex, 0, item);
         refreshAfterImageUpdate();
     }
 
+    /**
+     * 从图片数组中删除指定索引的图片（至少保留一张）。
+     * @param {number} index
+     */
     function removeImage(index) {
         if (originalImageObjects.length <= 1) {
             showToast("至少需要保留 1 张图片", true);
@@ -1281,6 +1439,9 @@
         refreshAfterImageUpdate();
     }
 
+    /**
+     * 图片列表更新后的通用刷新流程：重新计算尺寸、生成拼接图、重新渲染列表并请求预览刷新。
+     */
     function refreshAfterImageUpdate() {
         recalculateDimensions();
         inputs.imgCount.innerText = originalImageObjects.length;
@@ -1291,6 +1452,11 @@
 
     // --- Logic: Dimensions & Resolution Display ---
 
+    /**
+     * 计算逻辑画布尺寸（宽度和高度）。
+     * 基于所选图片的最大宽度、边框设置与间隔。单张图片时强制使用外边框。
+     * @returns {{w:number,h:number}}
+     */
     function getLogicalDimensions() {
         if (selectedImages.length === 0) return { w: 0, h: 0 };
         
@@ -1334,6 +1500,14 @@
 
     // --- Core Logic: Image Processing ---
 
+    // Handle files selected via file input or drop. Supports front-end
+    // HEIC conversion when the conversion library is available.
+    /**
+     * 处理用户选择或拖放的文件，将文件转换为 Image 对象并加入到应用中。
+     * 支持前端 HEIC/HEIF -> JPEG 转换（当 heic2any 可用时）。
+     * @param {Event|Object} e - 文件选择事件或带有 target.files 的对象
+     * @param {boolean} [isReplace=false] - 是否替换当前图片（true: 替换）
+     */
     async function handleFiles(e, isReplace = false) {
         let files = Array.from(e.target.files || []);
         if (files.length === 0) return;
@@ -1446,6 +1620,10 @@
         }
     }
 
+    /**
+     * 根据当前原始图片对象集合计算内部使用的尺寸信息（selectedImages、maxImageWidth）。
+     * 计算后会更新分辨率显示。
+     */
     function recalculateDimensions() {
         if (originalImageObjects.length === 0) return;
         maxImageWidth = 0;
@@ -1464,6 +1642,10 @@
         updateResolutionDisplay();
     }
 
+    /**
+     * 处理自定义背景图片的选择并加载为 Image 对象。
+     * @param {Event} e
+     */
     function handleCustomBgSelection(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1482,6 +1664,12 @@
         img.src = URL.createObjectURL(file);
     }
 
+    // Create an offscreen canvas that stacks all selected images vertically
+    // (used for efficient preview/export processing).
+    /**
+     * 生成一个离屏画布，将所有选中的图片在垂直方向上拼接为一张大图。
+     * 用于预览与导出时提高渲染效率。
+     */
     function generateStitchedBase() {
         if (selectedImages.length === 0) return;
         const totalHeight = selectedImages.reduce((sum, item) => sum + item.height, 0);
