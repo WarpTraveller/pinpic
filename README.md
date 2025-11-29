@@ -1,11 +1,11 @@
-# PinPic 图片拼接编辑器
+# PinPhotograph 图片拼接编辑器
 
 ## 概述
 
-PinPic 是一款图片拼接编辑网页应用，支持将多张图片进行高质量拼接，并提供丰富的边框自定义选项，最独特的在于高斯模糊背景选项。
+PinPhotograph 是一款图片拼接编辑网页应用，支持将多张图片进行高质量拼接，并提供丰富的边框自定义选项，最独特的在于高斯模糊背景选项。
 
 ### 访问网址
-https://warptraveller.github.io/pinpic
+https://warptraveller.github.io/PinPhotograph/
 
 ### 效果示意
 <div align="center">
@@ -41,7 +41,8 @@ https://warptraveller.github.io/pinpic
     
 
 ## 注意事项
-
+- 为防止触屏误触，横向滑动条需要拖动才能调整
+  
 - 选择过多高分辨率图片可能导致处理时间较长
     
 - 输出超高分辨率图片时请确保设备有足够内存
